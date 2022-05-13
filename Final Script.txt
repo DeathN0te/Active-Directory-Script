@@ -1,6 +1,6 @@
 Import-Module ActiveDirectory 
 
-#This creates your first OU
+#This creates your first OU. Replace the Domain with your own, ex. Mine is StarPlatinum, TheWorld, COM.
 
 New-ADOrganizationalUnit -Name "StarPlatinum" -Path "DC=THEWORLD,DC=com"
 
