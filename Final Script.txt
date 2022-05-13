@@ -1,0 +1,133 @@
+Import-Module ActiveDirectory 
+
+#This creates your first OU
+
+New-ADOrganizationalUnit -Name "StarPlatinum" -Path "DC=THEWORLD,DC=com"
+
+# This script is used for creating bulk organizational units.
+
+#Put the destination for your Organizational Units CSV below. 
+$ADOU = Import-csv C:\Users\Administrator\Downloads\OUs.csv -Delimiter ","
+
+#Loop through each row containing user details in the CSV file
+foreach ($ou in $ADOU)
+{
+#Read data from each field in each row and assign the data to a variable as below
+
+$name = $ou.name
+$path = $ou.path
+
+#Account will be created in the OU provided by the $OU variable read from the CSV file
+New-ADOrganizationalUnit `
+-Name $name `
+-path $path `
+
+}
+
+#Put the destination for your Users CSV below.
+$ADUsers = Import-csv C:\Users\Administrator\Downloads\UserNames.csv -Delimiter ","
+
+#Loop through each row containing user details in the CSV file 
+foreach ($User in $ADUsers)
+{
+	#Read user data from each field in each row and assign the data to a variable as below
+		
+	$Username = $User.username
+	$Password = $User.password
+	$Firstname = $User.firstname
+	$Lastname = $User.lastname
+	$OU = $User.ou 
+	$Password = $User.Password
+
+	#Check to see if the user already exists in AD
+	if (Get-ADUser -F {SamAccountName -eq $Username})
+	{
+		#If user does exist, give a warning
+		Write-Warning "A user account with username $Username already exist."
+	}
+	else
+	{
+		#User does not exist then create the new user account
+		
+        #Account will be created in the OU provided by the $OU variable read from the CSV file
+		New-ADUser `
+	-SamAccountName $Username `
+	-UserPrincipalName "$Username@THEWORLD.com" `
+	-Name "$Firstname $Lastname" `
+	-GivenName $Firstname `
+	-Surname $Lastname `
+	-Enabled $True `
+	-DisplayName "$Lastname, $Firstname" `
+	-Path $OU `
+	-City $city `
+	-Company $company `
+	-State $state `
+	-StreetAddress $streetaddress `
+	-OfficePhone $telephone `
+	-EmailAddress $email `
+	-Title $jobtitle `
+	-Department $department `
+	-AccountPassword (convertto-securestring $Password -AsPlainText -Force) -ChangePasswordAtLogon $True
+            
+	}
+}
+
+#To set users as Managers
+get-aduser Cress1978 | Set-ADUser -Manager Cress1978
+get-aduser Linceigh | Set-ADUser -Manager Linceigh
+get-aduser Thavetind | Set-ADUser -Manager Thavetind
+get-aduser Wasken82 | Set-ADUser -Manager Wasken82
+get-aduser Knelows | Set-ADUser -Manager Knelows
+get-aduser Liffew | Set-ADUser -Manager Liffew
+get-aduser Thignot | Set-ADUser -Manager Thignot
+get-aduser Buten1971 | Set-ADUser -Manager Buten1971
+get-aduser Feen1965 | Set-ADUser -Manager Feen1965
+get-aduser Onthe1999 | Set-ADUser -Manager Onthe1999
+
+
+
+#To add a Security Group to an Organizational Unit
+New-ADGroup "Accounting Group" -path 'ou=StarPlatinum,dc=THEWORLD,dc=com' -GroupScope Global -PassThru –Verbose
+New-ADGroup "Engineering Group" -path 'ou=StarPlatinum,dc=THEWORLD,dc=com' -GroupScope Global -PassThru –Verbose
+New-ADGroup "HR Group" -path 'ou=StarPlatinum,dc=THEWORLD,dc=com' -GroupScope Global -PassThru –Verbose
+New-ADGroup "IT Group" -path 'ou=StarPlatinum,dc=THEWORLD,dc=com' -GroupScope Global -PassThru –Verbose
+New-ADGroup "Leadership Group" -path 'ou=StarPlatinum,dc=THEWORLD,dc=com' -GroupScope Global -PassThru –Verbose
+New-ADGroup "Legal Group" -path 'ou=StarPlatinum,dc=THEWORLD,dc=com' -GroupScope Global -PassThru –Verbose
+New-ADGroup "Management Group" -path 'ou=StarPlatinum,dc=THEWORLD,dc=com' -GroupScope Global -PassThru –Verbose
+New-ADGroup "Managers Group" -path 'ou=StarPlatinum,dc=THEWORLD,dc=com' -GroupScope Global -PassThru –Verbose
+New-ADGroup "Operations Group" -path 'ou=StarPlatinum,dc=THEWORLD,dc=com' -GroupScope Global -PassThru –Verbose
+New-ADGroup "Purchasing Group" -path 'ou=StarPlatinum,dc=THEWORLD,dc=com' -GroupScope Global -PassThru –Verbose
+New-ADGroup "RMO Group" -path 'ou=StarPlatinum,dc=THEWORLD,dc=com' -GroupScope Global -PassThru –Verbose
+
+
+
+#To add Organizational Unit Users to a Security Group
+Get-ADUser -SearchBase ‘OU=Accounting,OU=StarPlatinum,DC=THEWORLD,DC=com’ -Filter * | ForEach-Object {Add-ADGroupMember -Identity ‘Accounting Group’ -Members $_ }
+Get-ADUser -SearchBase ‘OU=Engineering,OU=StarPlatinum,DC=THEWORLD,DC=com’ -Filter * | ForEach-Object {Add-ADGroupMember -Identity ‘Engineering Group’ -Members $_ }
+Get-ADUser -SearchBase ‘OU=HR,OU=StarPlatinum,DC=THEWORLD,DC=com’ -Filter * | ForEach-Object {Add-ADGroupMember -Identity ‘HR Group’ -Members $_ }
+Get-ADUser -SearchBase ‘OU=IT,OU=StarPlatinum,DC=THEWORLD,DC=com’ -Filter * | ForEach-Object {Add-ADGroupMember -Identity ‘IT Group’ -Members $_ }
+Get-ADUser -SearchBase ‘OU=Leadership,OU=StarPlatinum,DC=THEWORLD,DC=com’ -Filter * | ForEach-Object {Add-ADGroupMember -Identity ‘Leadership Group’ -Members $_ }
+Get-ADUser -SearchBase ‘OU=Legal,OU=StarPlatinum,DC=THEWORLD,DC=com’ -Filter * | ForEach-Object {Add-ADGroupMember -Identity ‘Legal Group’ -Members $_ }
+Get-ADUser -SearchBase ‘OU=Management,OU=StarPlatinum,DC=THEWORLD,DC=com’ -Filter * | ForEach-Object {Add-ADGroupMember -Identity ‘Management Group’ -Members $_ }
+Get-ADUser -SearchBase ‘OU=Operations,OU=StarPlatinum,DC=THEWORLD,DC=com’ -Filter * | ForEach-Object {Add-ADGroupMember -Identity ‘Operations Group’ -Members $_ }
+Get-ADUser -SearchBase ‘OU=Purchasing,OU=StarPlatinum,DC=THEWORLD,DC=com’ -Filter * | ForEach-Object {Add-ADGroupMember -Identity ‘Purchasing Group’ -Members $_ }
+Get-ADUser -SearchBase ‘OU=RMO,OU=StarPlatinum,DC=THEWORLD,DC=com’ -Filter * | ForEach-Object {Add-ADGroupMember -Identity ‘RMO Group’ -Members $_ }
+
+
+
+#To set Managers for all users
+get-aduser -filter * -SearchBase "ou=RMO,ou=starplatinum,dc=theworld,dc=com" | Set-ADuser -Manager onthe1999
+get-aduser -filter * -SearchBase "ou=Purchasing,ou=starplatinum,dc=theworld,dc=com" | Set-ADuser -Manager Feen1965
+get-aduser -filter * -SearchBase "ou=Operations,ou=starplatinum,dc=theworld,dc=com" | Set-ADuser -Manager Buten1971
+get-aduser -filter * -SearchBase "ou=Management,ou=starplatinum,dc=theworld,dc=com" | Set-ADuser -Manager Thignot
+get-aduser -filter * -SearchBase "ou=Legal,ou=starplatinum,dc=theworld,dc=com" | Set-ADuser -Manager Liffew
+get-aduser -filter * -SearchBase "ou=Leadership,ou=starplatinum,dc=theworld,dc=com" | Set-ADuser -Manager Knelows
+get-aduser -filter * -SearchBase "ou=IT,ou=starplatinum,dc=theworld,dc=com" | Set-ADuser -Manager Wasken82
+get-aduser -filter * -SearchBase "ou=HR,ou=starplatinum,dc=theworld,dc=com" | Set-ADuser -Manager Thavetind
+get-aduser -filter * -SearchBase "ou=Engineering,ou=starplatinum,dc=theworld,dc=com" | Set-ADuser -Manager Linceigh
+get-aduser -filter * -SearchBase "ou=Accounting,ou=starplatinum,dc=theworld,dc=com" | Set-ADuser -Manager Cress1978
+
+
+#Adds all Managers to the "Managers Group"
+Import-Csv -Path “C:\Users\Administrator\Downloads\Managers.csv” -Delimiter "," | ForEach-Object {Add-ADGroupMember -Identity 'Managers Group' -Members $_.’User-Name’}
+
